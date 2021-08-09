@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; height: 300px; overflow: auto; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+	  #startbutton { width: 80px; }
+    </style>
+    <script src="socket.js"></script>
+    <script src="jquery.js"></script>
+    <script>		
+      $(function() {
+		var url = location.protocol+"//"+location.host;
+		console.log("url="+url);
+		var socket = io.connect(url);
+		//var socket = io.connect("http://127.0.0.1:9000");
+		$('form').submit(function() {
+			var msg = { username: $("#loginname").val(), message: $('#m').val() };
+			socket.emit('chat message', msg);
+			$('#m').val('');
+			return false;
+		});
+		socket.on('chat message', function(msg){
+			$('#messages').append($('<li>').text(msg.username+" : "+msg.message));
+		});
+		$("#startbutton").click(function() { 
+			if($.trim($("#loginname").val())=="") {
+				alert("Please specified Login Name");
+				return;
+			}
+			$("#loginlayer").hide();
+			$("#chatlayer").show();
+		});
+	  });
+    </script>
+  </head>
+  <body>
+	<div id="loginlayer" style="text-align: center; margin-top: 100px;">
+		<label>Login Name : </label>
+		<input type="text" id="loginname" />
+		<input type="button" id="startbutton" value="Start"/>
+	</div>
+	<div id="chatlayer" style="display:none">
+    <ul id="messages"></ul>
+    <form action="" onsubmit="return false;">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+	</div>
+  </body>
+</html>
